@@ -1,4 +1,5 @@
-🛡️ UPI Fraud Detection & Multi-Modal Learning System
+# 🛡️ UPI Fraud Detection & Multi-Modal Learning System
+
 A simple web app that predicts whether a UPI transaction is fraudulent or safe, using a trained LSTM model and Flask-based frontend.
 
 ⚙️ Features
