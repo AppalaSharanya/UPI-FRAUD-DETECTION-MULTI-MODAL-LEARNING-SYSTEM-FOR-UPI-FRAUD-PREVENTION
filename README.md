@@ -25,25 +25,3 @@ Multiple Quick Transactions
 Hour of Transaction
 
 Day of the Week
-
-🚀 How to Run
-Install dependencies:
-
-bash
-Copy
-Edit
-pip install flask numpy joblib
-Make sure your .pkl model is correctly loaded in the script.
-
-Run the app:
-
-bash
-Copy
-Edit
-python app.py
-Open in browser:
-
-cpp
-Copy
-Edit
-http://127.0.0.1:5000/
