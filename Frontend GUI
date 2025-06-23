@@ -1,0 +1,150 @@
+from flask import Flask, request, jsonify, render_template_string
+import joblib
+import numpy as np
+
+app = Flask(_name_)
+model = joblib.load('C:/Users/chakr/Desktop/MAjor/upi_fraud_lstm_model_final.pkl')
+
+html = '''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPI Fraud Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('/static/images/background.jpg');  /* Background image */
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;  /* Ensure full screen background */
+        }
+        .container {
+            width: 50%;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);  /* Light background for contrast */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            font-size: 16px;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error-message {
+            color: red;
+            font-size: 16px;
+            text-align: center;
+        }
+        .result {
+            font-size: 18px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .fraud {
+            color: red;
+            font-weight: bold;
+        }
+        .safe {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>UPI Fraud Detection</h1>
+        <form action="/predict" method="POST">
+            <label for="amount">Transaction Amount:</label>
+            <input type="text" id="amount" name="amount" required><br>
+
+            <label for="device">Device Type:</label>
+            <input type="text" id="device" name="device" required><br>
+
+            <label for="ip">IP Change Flag (0 or 1):</label>
+            <input type="text" id="ip" name="ip" required><br>
+
+            <label for="loc">Location Change Flag (0 or 1):</label>
+            <input type="text" id="loc" name="loc" required><br>
+
+            <label for="quick">Multiple Quick Transactions (0 or 1):</label>
+            <input type="text" id="quick" name="quick" required><br>
+
+            <label for="hour">Hour of Transaction (0-23):</label>
+            <input type="text" id="hour" name="hour" required><br>
+
+            <label for="day">Day of the Week (0-6):</label>
+            <input type="text" id="day" name="day" required><br>
+
+            <button type="submit">Predict Fraud</button>
+        </form>
+
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
+
+        {% if prediction is not none %}
+            <div class="result">
+                Fraud Prediction: 
+                {% if prediction == 1 %}
+                    <span class="fraud">Fraudulent</span>
+                {% else %}
+                    <span class="safe">Safe</span>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
+'''
+
+@app.route('/')
+def home():
+    return render_template_string(html)
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    features = [
+        float(request.form['amount']),
+        int(request.form['device']),
+        int(request.form['ip']),
+        int(request.form['loc']),
+        int(request.form['quick']),
+        int(request.form['hour']),
+        int(request.form['day'])
+    ]
+    input_array = np.array(features).reshape(1, 1, 7)  # For LSTM input shape
+    prediction = model.predict(input_array)
+    result = int(prediction[0][0] > 0.5)
+    return f"<h2>Fraud Prediction: {'FRAUD' if result == 1 else 'NOT FRAUD'}</h2>"
+
+if _name_ == '_main_':
+    app.run(debug=True)
